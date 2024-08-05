@@ -4,8 +4,8 @@ Welcome to my GitHub repository of passion projects! This directory showcases a 
 
 ## Projects
 
-- [Credit Risk Model](./Credit_Risk_Model)
-- [Homemade Neural Network](./Neural_Network)
+- Credit Risk Model
+- Homemade Neural Network
 
 ## Project Overviews
 
@@ -15,6 +15,13 @@ A credit risk model is a financial tool used to estimate the likelihood of a bor
 Purpose
 
 The primary purpose of a credit risk model is to predict the probability of default (PD) and to estimate the potential loss (Loss Given Default, LGD) in the event of a default. This allows lenders to manage their risk exposure and set appropriate interest rates and credit limits.
+
+### [Credit Risk Model](./CreditRiskModel)
+A credit risk model is a financial tool used to estimate the likelihood of a borrower defaulting on a loan or credit obligation. These models are essential for financial institutions as they help in assessing the risk associated with lending and making informed decisions about credit issuance.
+
+- **Purpose**: Predicts the probability of default (PD) and estimates the potential loss (Loss Given Default, LGD) in the event of a default.
+- **Components**: Input Data, Statistical Techniques (Logistic Regression, Decision Trees, Neural Networks), Scoring System, Validation, and Calibration.
+- **Implementation Steps**: Data Collection, Feature Engineering, Model Development, Validation, Deployment, Monitoring, and Updating.
 
 ## How to Use
 
