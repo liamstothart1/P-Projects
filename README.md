@@ -6,6 +6,7 @@ Welcome to my GitHub repository of passion projects! This directory showcases a 
 
 - Credit Risk Model
 - Homemade Neural Network
+- Plant Monitoring system
 
 ## Project Overviews
 
@@ -39,6 +40,31 @@ You can install the required libraries using pip:
 
 ```bash
 pip install numpy matplotlib pandas
+
+# Plant Monitoring System with OLED Display
+
+This project implements a plant monitoring system using an ESP32 microcontroller and an SSD1306 OLED display. The system continuously monitors three key parameters crucial for plant health: light intensity, temperature, and soil moisture. Based on predefined thresholds, it provides real-time feedback on the environmental conditions and alerts the user if any parameter goes beyond the desired range.
+
+## Components Used
+
+	•	ESP32 microcontroller
+	•	SSD1306 OLED display (128x64 pixels)
+	•	Light Dependent Resistor (LDR) for light intensity
+	•	Temperature sensor for measuring ambient temperature
+	•	Soil moisture sensor for monitoring soil moisture levels
+
+## Functionality
+
+	•	Real-time Monitoring: Continuously reads and displays light intensity, temperature, and soil moisture levels on the OLED display.
+	•	Threshold Alerts: If any parameter (light intensity, temperature, or soil moisture) exceeds predefined thresholds, the system displays a warning message indicating the nature of the issue (e.g., too much light, low temperature).
+	•	User Feedback: Displays actionable messages based on sensor readings, suggesting whether the plant needs more or less light, water, or if the temperature needs adjustment.
+	•	Power Efficiency: Utilizes deep sleep mode of the ESP32 to conserve power between display updates, maximizing battery life.
+
+## Libraries Used
+
+	•	Wire.h for I2C communication
+	•	Adafruit_GFX.h and Adafruit_SSD1306.h for OLED display control
+	•	esp_sleep.h for ESP32 deep sleep mode functionality
 
 ## How to Use
 
