@@ -1,0 +1,193 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split, GridSearchCV, validation_curve
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Make sure to install xgboost
+# pip install xgboost
+from xgboost import XGBClassifier
+
+# Load the data
+df = pd.read_csv('.../Finance/Modelling/UCI_Credit_Card.csv')
+
+# Convert categorical features to appropriate format
+df['SEX'] = df['SEX'].astype('category')
+df['EDUCATION'] = df['EDUCATION'].astype('category')
+df['MARRIAGE'] = df['MARRIAGE'].astype('category')
+
+# Create new features
+df['TOTAL_BILL_AMT'] = df[['BILL_AMT1', 'BILL_AMT2', 'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6']].sum(axis=1)
+df['TOTAL_PAY_AMT'] = df[['PAY_AMT1', 'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6']].sum(axis=1)
+
+for i in range(1, 7):
+    df[f'PAY_RATIO_{i}'] = np.where(df[f'BILL_AMT{i}'] == 0, 0, df[f'PAY_AMT{i}'] / df[f'BILL_AMT{i}'])
+    df[f'UTIL_RATIO_{i}'] = np.where(df['LIMIT_BAL'] == 0, 0, df[f'BILL_AMT{i}'] / df['LIMIT_BAL'])
+
+# Replace infinite values with 0
+df.replace([float('inf'), -float('inf')], 0, inplace=True)
+
+# Drop any rows with NaN values
+df.dropna(inplace=True)
+
+# Aggregate features
+df['AVG_PAY_RATIO'] = df[[f'PAY_RATIO_{i}' for i in range(1, 7)]].mean(axis=1)
+df['STD_PAY_RATIO'] = df[[f'PAY_RATIO_{i}' for i in range(1, 7)]].std(axis=1)
+df['AVG_UTIL_RATIO'] = df[[f'UTIL_RATIO_{i}' for i in range(1, 7)]].mean(axis=1)
+df['STD_UTIL_RATIO'] = df[[f'UTIL_RATIO_{i}' for i in range(1, 7)]].std(axis=1)
+
+# Interaction between credit limit and age
+df['LIMIT_AGE_RATIO'] = df['LIMIT_BAL'] / df['AGE']
+
+# Interaction between bill amounts and payment amounts
+for i in range(1, 7):
+    df[f'BILL_PAY_RATIO_{i}'] = np.where(df[f'BILL_AMT{i}'] == 0, 0, df[f'PAY_AMT{i}'] / df[f'BILL_AMT{i}'])
+
+# Lag features for bill amounts and payment amounts
+for i in range(2, 7):
+    df[f'BILL_AMT_LAG_{i}'] = df[f'BILL_AMT{i}'] - df[f'BILL_AMT{i-1}']
+    df[f'PAY_AMT_LAG_{i}'] = df[f'PAY_AMT{i}'] - df[f'PAY_AMT{i-1}']
+
+# Aggregate features for bill amounts and payment amounts
+df['BILL_AMT_MIN'] = df[[f'BILL_AMT{i}' for i in range(1, 7)]].min(axis=1)
+df['BILL_AMT_MAX'] = df[[f'BILL_AMT{i}' for i in range(1, 7)]].max(axis=1)
+df['BILL_AMT_MEDIAN'] = df[[f'BILL_AMT{i}' for i in range(1, 7)]].median(axis=1)
+df['BILL_AMT_RANGE'] = df['BILL_AMT_MAX'] - df['BILL_AMT_MIN']
+
+df['PAY_AMT_MIN'] = df[[f'PAY_AMT{i}' for i in range(1, 7)]].min(axis=1)
+df['PAY_AMT_MAX'] = df[[f'PAY_AMT{i}' for i in range(1, 7)]].max(axis=1)
+df['PAY_AMT_MEDIAN'] = df[[f'PAY_AMT{i}' for i in range(1, 7)]].median(axis=1)
+df['PAY_AMT_RANGE'] = df['PAY_AMT_MAX'] - df['PAY_AMT_MIN']
+
+# Count the number of months with late payments
+df['LATE_PAYMENT_COUNT'] = (df[[f'PAY_{i}' for i in range(1, 7)]] > 0).sum(axis=1)
+
+# Count the number of months with no payments
+df['NO_PAYMENT_COUNT'] = (df[[f'PAY_AMT{i}' for i in range(1, 7)]] == 0).sum(axis=1)
+
+# Rolling mean and standard deviation for bill and payment amounts
+for i in range(1, 6):
+    df[f'ROLLING_BILL_MEAN_{i}'] = df[[f'BILL_AMT{j}' for j in range(1, 8-i)]].mean(axis=1)
+    df[f'ROLLING_PAY_MEAN_{i}'] = df[[f'PAY_AMT{j}' for j in range(1, 8-i)]].mean(axis=1)
+    df[f'ROLLING_BILL_STD_{i}'] = df[[f'BILL_AMT{j}' for j in range(1, 8-i)]].std(axis=1)
+    df[f'ROLLING_PAY_STD_{i}'] = df[[f'PAY_AMT{j}' for j in range(1, 8-i)]].std(axis=1)
+
+# Balance-to-limit ratio for each month
+for i in range(1, 7):
+    df[f'BALANCE_LIMIT_RATIO_{i}'] = df[f'BILL_AMT{i}'] / df['LIMIT_BAL']
+
+# Prepare final feature set
+X = df.drop(['ID', 'default.payment.next.month'], axis=1)
+y = df['default.payment.next.month']
+
+# Encode categorical variables
+X = pd.get_dummies(X, columns=['SEX', 'EDUCATION', 'MARRIAGE'])
+
+# Feature scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Handle class imbalance using SMOTE
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X_scaled, y)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.2, random_state=42)
+
+# Initialize and train the Random Forest model with hyperparameter tuning
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [10, 20, None]
+}
+
+clf = RandomForestClassifier(random_state=42)
+grid_search = GridSearchCV(estimator=clf, param_grid=param_grid, cv=3, n_jobs=-1, verbose=2)
+grid_search.fit(X_train, y_train)
+
+best_clf = grid_search.best_estimator_
+
+# Make predictions and evaluate the model
+y_pred = best_clf.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+
+print(f"Accuracy: {accuracy}")
+print(f"Classification Report:\n{report}")
+print(f"Best Parameters: {grid_search.best_params_}")
+
+# Feature Importance
+importances = best_clf.feature_importances_
+indices = np.argsort(importances)[::-1]
+feature_names = X.columns
+
+# Select top N features
+N = 20  # Choose the number of top features you want to keep
+top_features = feature_names[indices[:N]]
+
+# Print the feature ranking
+print("Top feature ranking:")
+for i in range(N):
+    print(f"{i + 1}. Feature {top_features[i]} ({importances[indices[i]]})")
+
+# Keep only top N features
+X_top = df[top_features]
+
+# Feature scaling
+X_top_scaled = scaler.fit_transform(X_top)
+
+# Handle class imbalance using SMOTE
+X_top_resampled, y_top_resampled = smote.fit_resample(X_top_scaled, y)
+
+# Split the data into training and testing sets
+X_train_top, X_test_top, y_train_top, y_test_top = train_test_split(X_top_resampled, y_top_resampled, test_size=0.2, random_state=42)
+
+# Initialize and train the Random Forest model with top N features
+clf_top = RandomForestClassifier(n_estimators=200, max_depth=None, random_state=42)
+clf_top.fit(X_train_top, y_train_top)
+
+# Make predictions and evaluate the model with top N features
+y_pred_top = clf_top.predict(X_test_top)
+accuracy_top = accuracy_score(y_test_top, y_pred_top)
+report_top = classification_report(y_test_top, y_pred_top)
+
+print(f"Accuracy with top {N} features: {accuracy_top}")
+print(f"Classification Report with top {N} features:\n{report_top}")
+
+## Calculate the confusion matrix
+conf_matrix_top = confusion_matrix(y_test_top, y_pred_top)
+
+# Extract true positives, true negatives, false positives, and false negatives
+tn, fp, fn, tp = conf_matrix_top.ravel()
+
+print(f"True Positives (TP): {tp}")
+print(f"True Negatives (TN): {tn}")
+print(f"False Positives (FP): {fp}")
+print(f"False Negatives (FN): {fn}")
+
+# Plot the confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix_top, annot=True, fmt='d', cmap='Blues', xticklabels=['No Default', 'Default'], yticklabels=['No Default', 'Default'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title(f'Confusion Matrix with top {N} features')
+plt.xticks(ticks=[0.5, 1.5], labels=['No Default', 'Default'], rotation=0)
+plt.yticks(ticks=[0.5, 1.5], labels=['No Default', 'Default'], rotation=0)
+plt.show()
+
+# Ensemble model with top N features
+ensemble_top = VotingClassifier(estimators=[('rf', clf_top), ('gb', GradientBoostingClassifier(random_state=42)), ('xgb', XGBClassifier(random_state=42))], voting='soft')
+
+# Train the ensemble model with top N features
+ensemble_top.fit(X_train_top, y_train_top)
+
+# Make predictions and evaluate the ensemble model with top N features
+y_pred_ensemble_top = ensemble_top.predict(X_test_top)
+accuracy_ensemble_top = accuracy_score(y_test_top, y_pred_ensemble_top)
+report_ensemble_top = classification_report(y_test_top, y_pred_ensemble_top)
+
+print(f"Ensemble Accuracy with top {N} features: {accuracy_ensemble_top}")
+print(f"Ensemble Classification Report with top {N} features:\n{report_ensemble_top}")
