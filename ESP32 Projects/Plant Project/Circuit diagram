@@ -1,0 +1,50 @@
+// Diagram json file contents 
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard", "id": "bb1", "top": -70.2, "left": -16.4, "attrs": {} },
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 172.8, "left": 81.64, "attrs": {} },
+    {
+      "type": "board-ssd1306",
+      "id": "oled1",
+      "top": 300.74,
+      "left": 269.03,
+      "attrs": { "i2cAddress": "0x3c" }
+    },
+    {
+      "type": "wokwi-ntc-temperature-sensor",
+      "id": "ntc1",
+      "top": 41,
+      "left": -298.2,
+      "attrs": {}
+    },
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr1", "top": 32, "left": 231.2, "attrs": {} },
+    { "type": "chip-soil", "id": "chip1", "top": -56.58, "left": -168, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:3V3", "bb1:bp.3", "green", [ "h0" ] ],
+    [ "oled1:VCC", "bb1:5b.j", "red", [ "v0" ] ],
+    [ "oled1:GND", "bb1:19b.j", "black", [ "v0" ] ],
+    [ "oled1:SCL", "esp:22", "green", [ "v0" ] ],
+    [ "esp:21", "oled1:SDA", "green", [ "h0" ] ],
+    [ "ntc1:VCC", "bb1:5b.i", "red", [ "h0" ] ],
+    [ "ntc1:GND", "bb1:19b.h", "black", [ "h0" ] ],
+    [ "ntc1:OUT", "esp:35", "green", [ "h0" ] ],
+    [ "ldr1:VCC", "bb1:5b.f", "red", [ "h0" ] ],
+    [ "ldr1:GND", "bb1:19b.f", "black", [ "h0" ] ],
+    [ "ldr1:AO", "esp:34", "green", [ "h0" ] ],
+    [ "chip1:VCC", "bb1:5b.g", "red", [ "h0" ] ],
+    [ "chip1:GND", "bb1:19b.g", "black", [ "h0" ] ],
+    [ "chip1:OUT", "esp:32", "green", [ "h0" ] ],
+    [ "esp:GND.2", "bb1:bn.15", "black", [ "v0" ] ],
+    [ "ldr1:VCC", "bb1:42b.f", "", [ "$bb" ] ],
+    [ "ldr1:GND", "bb1:42b.g", "", [ "$bb" ] ],
+    [ "ldr1:DO", "bb1:42b.h", "", [ "$bb" ] ],
+    [ "ldr1:AO", "bb1:42b.i", "", [ "$bb" ] ]
+  ],
+  "dependencies": {}
+}
