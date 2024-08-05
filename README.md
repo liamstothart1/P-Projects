@@ -40,7 +40,7 @@ You can install the required libraries using pip:
 
 ```bash
 pip install numpy matplotlib pandas
-
+```
 # Plant Monitoring System with OLED Display
 
 This project implements a plant monitoring system using an ESP32 microcontroller and an SSD1306 OLED display. The system continuously monitors three key parameters crucial for plant health: light intensity, temperature, and soil moisture. Based on predefined thresholds, it provides real-time feedback on the environmental conditions and alerts the user if any parameter goes beyond the desired range.
