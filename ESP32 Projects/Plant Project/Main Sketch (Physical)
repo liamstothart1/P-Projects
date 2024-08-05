@@ -77,7 +77,7 @@ void setup() {
   delay(2000);
   display.clearDisplay();
 
-  // Show initial message "Hi Becks :)" for 5 seconds
+  // Show initial message "Hello! :)" for 5 seconds
   display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 16);
