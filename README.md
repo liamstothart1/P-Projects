@@ -73,7 +73,7 @@ Each project folder contains a `README.md` file with detailed information on the
 
 ## Contact
 
-You can reach me at [your-email@example.com] I'm always excited to connect with fellow developers and discuss new ideas.
+You can reach me at [liam.stothart@gmail.com] I'm always excited to connect with fellow developers and discuss new ideas.
 
 Thank you for visiting my repository. Happy coding!
 
