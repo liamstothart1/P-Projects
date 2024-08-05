@@ -16,12 +16,29 @@ Purpose
 
 The primary purpose of a credit risk model is to predict the probability of default (PD) and to estimate the potential loss (Loss Given Default, LGD) in the event of a default. This allows lenders to manage their risk exposure and set appropriate interest rates and credit limits.
 
-### [Credit Risk Model](./CreditRiskModel)
-A credit risk model is a financial tool used to estimate the likelihood of a borrower defaulting on a loan or credit obligation. These models are essential for financial institutions as they help in assessing the risk associated with lending and making informed decisions about credit issuance.
+# Simple Neural Network Framework
 
-- **Purpose**: Predicts the probability of default (PD) and estimates the potential loss (Loss Given Default, LGD) in the event of a default.
-- **Components**: Input Data, Statistical Techniques (Logistic Regression, Decision Trees, Neural Networks), Scoring System, Validation, and Calibration.
-- **Implementation Steps**: Data Collection, Feature Engineering, Model Development, Validation, Deployment, Monitoring, and Updating.
+This repository contains an implementation of a neural network framework in Python. It includes classes for creating neural network layers and the neural network itself, functions for training the network using Stochastic Gradient Descent (SGD), and methods for evaluating and visualizing performance. It can serve as guide for how neural networks function and their parts.
+
+## Features
+
+- **Layer Class**: Represents a single neural network layer with forward and backward propagation methods.
+- **NeuralNetwork Class**: Represents a neural network composed of multiple layers.
+- **Validation Curve**: Function to plot training and testing accuracy over epochs.
+- **Layer Testing**: Method to test different layer configurations and save performance data to a CSV file.
+
+## Installation
+
+To run this script, you need to have Python and the following libraries installed:
+
+- NumPy
+- Matplotlib
+- Pandas
+
+You can install the required libraries using pip:
+
+```bash
+pip install numpy matplotlib pandas
 
 ## How to Use
 
