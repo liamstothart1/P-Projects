@@ -5,7 +5,7 @@ Welcome to my GitHub repository of passion projects! This directory showcases a 
 ## Projects
 
 - [Credit Risk Model](./CreditRiskModel)
-- [Homemade Neural Network](./Neural-Network)
+- [Homemade Neural Network](./Neural Network)
 
 ## Project Overviews
 
