@@ -170,3 +170,115 @@ class NeuralNetwork:
         df_performance.to_csv(output_file, index=False)
         print(f"Performance data saved to {output_file}")
         return self.config_performance
+import numpy as np 
+import pandas as pd 
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from NeuralN import NeuralNetwork
+import matplotlib.pyplot as plt
+import seaborn as sns
+from imblearn.over_sampling import SMOTE
+from nose.tools import assert_almost_equal
+
+def histo_feature_plot(df, features):
+    """
+    Plots the distributions of specified features in the DataFrame after scaling.
+
+    Parameters:
+    - df (pandas.DataFrame): The DataFrame containing the features.
+    - features (list of str): List of feature names to plot.
+
+    """
+    # Setup the figure and axes for a grid of plots
+    n_features = len(features)
+    nrows = int(np.ceil(n_features / 2))  # Calculate the number of rows needed
+    ncols = 2 if n_features > 1 else 1     # Use 2 columns if more than 1 feature, else 1
+
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(12, 8 * nrows))  # Adjust the figure size dynamically based on the number of rows
+    axes = axes.flatten()  # Flatten the array of axes
+
+    # Iterate over each feature and its corresponding axis
+    for i, feature in enumerate(features):
+        sns.histplot(df[feature], ax=axes[i], kde=True)  # Plot histogram and KDE
+        axes[i].set_title(f'Distribution of {feature} After Scaling')
+        axes[i].set_xlabel('Color Index Value')
+        axes[i].set_ylabel('Frequency')
+
+    #hide any unused subplots if the number of features is odd
+    if len(features) % 2 != 0 and len(features) > 1:
+        axes[-1].set_visible(False)
+
+    plt.tight_layout()  
+    plt.show()  
+    
+def feature_standardisation_test(df, features):
+    """
+    Tests that each specified feature in the DataFrame has a mean of approximately 0
+    and a standard deviation of approximately 1, which are properties of standardised data.
+
+    Parameters:
+    - df (pandas.DataFrame): DataFrame containing the features to be tested.
+    - features (list of str): List of feature names to test for standardisation.
+    """
+    for feature in features:
+        feature_mean = df[feature].mean()
+        feature_std = df[feature].std()
+        
+        assert_almost_equal(feature_mean, 0, places=1, msg=f"Mean of {feature} is not approximately 0")
+        assert_almost_equal(feature_std, 1, places=1, msg=f"STD of {feature} is not approximately 1")
+    else:
+        return 'Data is standardised!' #print statement as validation of pass
+
+def rfc_default(X, y, test_size):
+    '''
+    Params: 
+    
+    X - Feature matrix 
+    y - Labels
+    test_size - test size 
+    
+    rfc_default will fit the data to a random forest classifier, by spliting the data into test and training data and fitting the model. We will output a random generator. 
+    '''
+    # import
+    from sklearn.model_selection import GridSearchCV
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+    from sklearn.ensemble import RandomForestClassifier
+    import matplotlib.pyplot as plt
+    import seaborn as sns  
+    
+        #Make sure that test size is between 0.1 and 1
+    if test_size < 0.1 or test_size > 1:
+        raise ValueError("Test size must be between 0.1 and 1.")
+    else:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+
+
+    # Initialize the random forest classifier
+    model = RandomForestClassifier(n_estimators=100)
+
+    # Train the classifier
+    model.fit(X_train, y_train)
+
+    # Predict on the test set
+    y_pred = model.predict(X_test)
+
+    # Calc the metrics 
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, pos_label=1)
+    recall = recall_score(y_test, y_pred, pos_label=1)
+    f1 = f1_score(y_test, y_pred, pos_label=1)
+
+    #confusion matrix
+    mat = confusion_matrix(y_test, y_pred)
+    fig = plt.figure(figsize=(9, 9))
+    sns.heatmap(mat.T, square=True, annot=True, fmt='d', cbar=False, cmap='Blues')
+    plt.xlabel('true label')
+    plt.ylabel('predicted label');
+
+    print("Evaluation Metrics:")
+    print("Accuracy:", accuracy)
+    print("Precision:", precision)
+    print("Recall:", recall)
+    print("F1 Score:", f1)
