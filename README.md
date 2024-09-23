@@ -5,6 +5,9 @@ Welcome to my GitHub repository of passion projects! This directory showcases a 
 - Credit Risk Model
 - Homemade Neural Network
 - Plant Monitoring system
+- Quasar Detector
+- Pulsar Detector
+- Face Detection (ML)
 
 # Project Overviews
 
