@@ -86,7 +86,7 @@ class NeuralNetwork:
         
         self.sizes = layer_sizes 
         if activation_function is None:
-            activations = ['sigmoid'] * (len(layer_sizes)-1)
+            activation_function = ['sigmoid'] * (len(layer_sizes)-1)
         elif isinstance(activation_function, str):
             activation_function = [activation_function] * (len(layer_sizes) - 1)
         self.layers = [Layer(layer_sizes[i], layer_sizes[i+1]) for i in range(len(layer_sizes)-1)] #
