@@ -60,7 +60,7 @@ class Layer:
             raise ValueError('Unsupported acctivation function: Please select sigmoid or relu.')
         dC_dw = np.outer(dC_dz, self.input_data)
         dC_db = dC_dz
-        dC_da_prev = np.dot(self.weights.T, dC_dz)
+        dC_da_prev = np.dot(self.weights.T, dC_dz) #Back prop of gradient of cost wrt activation
         return dC_da_prev, dC_db, dC_dw
 
     def sigmoid(self, x):
